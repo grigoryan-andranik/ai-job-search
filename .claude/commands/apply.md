@@ -99,6 +99,7 @@ Also read the most recent existing CV and cover letter files for concrete struct
 - Address to a named person if available in the posting, otherwise "Dear Hiring Manager" (or equivalent in posting language)
 - Keep to approximately one page
 - Any mention of agentic coding or AI tooling must reference **Claude Code** by name
+- A plain-text twin of the letter is always produced from the final version in Step 5f. Do not draft it separately here.
 
 Write both files to disk. Keep the exact text of both drafts in working memory — you will pass them inline to the reviewer in Step 3 and revise them in Step 4 without re-reading.
 
@@ -317,6 +318,17 @@ Failures here are template-level problems: fix them in the `<CV_EXT>` source (e.
 
 After the final clean compile, delete intermediate build files the compile command left behind — LaTeX toolchains leave `.aux`/`.log`/`.out`; a custom template's toolchain may leave nothing beyond the PDF. Keep the source file and the `.pdf`.
 
+### 5f. Plain-text cover letter (always)
+
+The candidate always gets the cover letter in two formats: the compiled PDF and a plain-text version for application forms that take the letter in a text box instead of as a file. Generate the text version from the **final** letter, after all Step 4 and Step 5 edits, and save it as `cover_letters/cover_<company>_<role>.txt`.
+
+- **Same letter, no markup:** remove every LaTeX command, brace and escape (`\%` becomes `%`). The salutation, paragraphs, bullets and closing stay in the same order.
+- **Plain punctuation only:** straight quotes, ASCII hyphens, no em-dashes, no typographic ligatures. Form fields often mangle anything else.
+- **Bullets:** one per line, starting with `- `, each on its own line.
+- **Contact details:** a text box has no letterhead, so add phone, email, LinkedIn and GitHub on the lines under the signature.
+- **Length:** at most **500 characters, spaces included** (the user's application forms cap the cover-letter box at 500 characters), unless the posting or portal states a different limit, in which case respect that one. At 500 characters the text is a short pitch, not the full letter: select the strongest grounded evidence and map it onto the employer's problem (see the hard-character-limit method in `08-application-forms.md`), write 3-4 candidates, and recommend one. When a form allows more, it may carry the full letter, plus at most one bullet the one-page PDF had to cut, from the same grounded sources and never contradicting the PDF or the CV.
+- **Measure, do not estimate:** count characters (including spaces) and words with a script, confirm no backslashes, braces or non-ASCII punctuation remain, and state the counts in Step 6.
+
 ---
 
 ## Step 6: Present Final Output
@@ -336,7 +348,9 @@ Summarize 3-5 key decisions made to tailor the application:
 ### Files Created
 List the files written:
 - `cv/main_<company>_<role><CV_EXT>`
-- `cover_letters/cover_<company>_<role><COVER_EXT>`
+- `cover_letters/cover_<company>_<role><COVER_EXT>` (and its compiled PDF)
+- `cover_letters/cover_<company>_<role>.txt` (plain-text cover letter from Step 5f, with its word and character counts)
+- `documents/applications/<company>_<role>/` application kit from Step 6c (`APPLY_GUIDE.md`, `fit_evaluation.md`, `application_form_fields.txt`, and both cover-letter formats plus the CV as send-ready copies)
 
 Tell the user: "Both files are ready for your review. Open them to check the final output before compiling."
 
@@ -369,6 +383,34 @@ Do this before the optional offer below, and before ending the turn for any othe
 7. **Archive the posting now.** Write the posting text you are holding from Step 0, verbatim and never a fresh fetch, to `documents/applications/<company>_<role>/job_posting.md`, creating the folder if absent. Derive `<company>_<role>` from the `company` and `role` values this tracker row ends up holding, by the same rule `/outcome` Step 1.4 uses. **If the file already exists, leave it** - the archived copy is what was actually submitted (a re-application to the same company and role collides here and keeps the older posting, as it does in `/outcome` today). **If you no longer hold the posting text, write nothing** - say so in the report and never reconstruct it from memory; `/outcome` Step 3.2 archives it later.
 
 Name the tracker row in the "Files Created" report above, and the archived posting - saying explicitly when an existing `job_posting.md` was left in place rather than written.
+
+### Step 6c: Application kit (always)
+
+The candidate applies by hand, so every run ends with one folder holding everything needed to do that. Assemble it in `documents/applications/<company>_<role>/`: the folder Step 6b archived the posting into. It is git-ignored personal data.
+
+It sits safely alongside the rest of the workflow:
+- `/setup` reads only its four named archive files and ignores extras.
+- Nothing is moved, so `/interview` and `/outcome` keep finding every file where they expect it.
+
+1. **Copies, never moves**, named for sending:
+   - `<Candidate Name> CV.pdf` and `<Candidate Name> Cover Letter.pdf`, copied from the final compiled PDFs.
+   - `<Candidate Name> Cover Letter.txt`, copied from the Step 5f text.
+2. **`application_form_fields.txt`:** the Step 5f candidates with their measured counts, following the output format in `08-application-forms.md`: NOTE TO SELF blocks and a dates quick-reference.
+3. **`fit_evaluation.md`:** the Step 1 scores table, strengths and gaps, plus every company fact that was verified, with its source URL.
+4. **`APPLY_GUIDE.md`:** the manual-apply playbook, with these sections:
+   - Where and how to apply: the posting URL and the channel the posting itself states, plus the deadline.
+   - Which file to attach and which text to paste, and where.
+   - Ready answers for likely form fields:
+     - salary: point to `/price`, never invent a number;
+     - notice period, location, languages and links;
+     - the years claimed, which must match the CV.
+   - A before-you-send checklist.
+   - Questions for the recruiter, in the posting's language when it is not English.
+   - Prepared answers for the gaps.
+   - LinkedIn people-search links for the user to open, never fetched or scraped.
+   - The next commands: `/outcome`, `/outcome followup`, `/interview`.
+
+**Never invent contact details.** Use only the posting URL and the channels the posting itself states. Re-running `/apply` refreshes the kit files; `job_posting.md` keeps the originally archived copy, per Step 6b.
 
 ### Application-Form Fields (Optional Third Artifact)
 

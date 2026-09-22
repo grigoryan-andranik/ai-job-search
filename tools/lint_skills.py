@@ -10,6 +10,8 @@ Checks:
   that exist (skill paths resolve relative to the repo root and to .agents/)
 - Every .claude/commands/*.md starts with a `# /<name>` title
 - .claude/settings.json is valid JSON with a permissions.allow list
+- Codex adapters with metadata.canonical-source point to an existing canonical
+  workflow and all their local Markdown links resolve inside the repository
 
 Exit code 0 on success, 1 with a failure list otherwise.
 """
@@ -52,6 +54,27 @@ def check_skill(path: Path) -> None:
     for key in ("name", "description"):
         if not data.get(key):
             errors.append(f"{rel(path)}: frontmatter missing required key '{key}'")
+
+    metadata = data.get("metadata", {})
+    if isinstance(metadata, dict) and "canonical-source" in metadata:
+        source = metadata["canonical-source"]
+        if not isinstance(source, str) or not source.startswith((".claude/commands/", ".claude/skills/")):
+            errors.append(f"{rel(path)}: canonical-source must name a .claude command or skill")
+        else:
+            target = (ROOT / source).resolve()
+            if not target.is_relative_to((ROOT / ".claude").resolve()) or not target.is_file():
+                errors.append(f"{rel(path)}: canonical-source references a missing or invalid file: {source}")
+            links = re.findall(r"\]\(([^)]+)\)", text)
+            local_targets = []
+            for link in links:
+                if "://" in link or link.startswith("#"):
+                    continue
+                resolved = (path.parent / link.split("#", 1)[0]).resolve()
+                local_targets.append(resolved)
+                if not resolved.is_relative_to(ROOT.resolve()) or not resolved.is_file():
+                    errors.append(f"{rel(path)}: broken local link: {link}")
+            if target not in local_targets:
+                errors.append(f"{rel(path)}: adapter must link to its canonical-source")
 
     allowed = data.get("allowed-tools", "")
     if isinstance(allowed, str):

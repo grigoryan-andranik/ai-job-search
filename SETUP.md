@@ -4,7 +4,13 @@ Step-by-step instructions for getting the AI Job Search framework running.
 
 ## 1. Prerequisites
 
-### Claude Code
+### Codex (recommended for this workspace)
+
+Install and sign in to Codex using the [official setup instructions](https://developers.openai.com/codex/cli), then open this repository in the app or run `codex` from its root. Use the skills in [CODEX.md](CODEX.md), such as `$setup`, `$scrape`, `$rank`, and `$apply <url>`.
+
+Codex discovers `.agents/skills/` and reads `AGENTS.md`. The adapters load the canonical specifications under `.claude/`; you do not need a Claude installation or Anthropic account. The candidate profile is shared, so switching runtimes does not require onboarding again.
+
+### Claude Code (alternative)
 
 Install Claude Code (Anthropic's CLI for Claude):
 
@@ -206,19 +212,15 @@ If you're outside Denmark, you can generate an equivalent search skill for your 
 
 ## 4. Run the setup interview
 
-Start Claude Code in the repository:
+Start Codex in the repository:
 
 ```bash
-claude
+codex
 ```
 
-Then run the onboarding:
+Then enter `$setup` in the conversation. For Claude Code, launch `claude` and enter `/setup`. The slash-command examples in the rest of this guide map to `$skill` invocations in Codex; see [CODEX.md](CODEX.md).
 
-```
-/setup
-```
-
-Claude will offer three paths:
+The assistant will offer three paths:
 
 - **Path A (documents folder):** Add your CV, LinkedIn export, diplomas, references, or past applications under `documents/`. Claude reads and cross-references them before proposing profile updates. This is best when you have several source files.
 - **Path B (single CV import):** Share one CV/resume by mentioning the file with `@` or pasting the text. Claude extracts it and asks follow-up questions for anything missing.

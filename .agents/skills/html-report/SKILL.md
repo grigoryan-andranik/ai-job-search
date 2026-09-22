@@ -1,11 +1,11 @@
 ---
-name: source-command-html-report
-description: Compatibility alias for the html-report job-search workflow. Prefer $html-report for new requests.
+name: html-report
+description: Generate a self-contained offline HTML dashboard from the job tracker and application outcomes.
 metadata:
   canonical-source: .claude/commands/html-report.md
 ---
 
-# source-command-html-report
+# html-report
 
 Read [Codex runtime guidance](../../../CODEX.md) and [the candidate profile](../../../CLAUDE.md) from the repository root before executing this workflow.
 Then read and follow [the canonical specification](../../../.claude/commands/html-report.md), applying the runtime mappings in `CODEX.md`.

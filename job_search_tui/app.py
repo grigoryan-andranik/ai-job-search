@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 from rich.text import Text
 from textual import on
-from textual.app import App, ComposeResult, SuspendNotSupported
+from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
 from textual.widgets import (
@@ -18,6 +19,7 @@ from textual.widgets import (
     Label,
     ListItem,
     ListView,
+    RichLog,
     Static,
     TabbedContent,
     TabPane,
@@ -42,7 +44,17 @@ class JobSearchApp(App[None]):
         Binding("q", "quit", "Quit"),
         Binding("r", "refresh", "Refresh"),
         Binding("ctrl+r", "run", "Run workflow", show=True),
+        Binding("ctrl+c", "cancel_workflow", "Cancel", show=False),
         Binding("/", "focus_arguments", "Arguments"),
+        Binding("j", "vim_down", show=False),
+        Binding("k", "vim_up", show=False),
+        Binding("h", "vim_left", show=False),
+        Binding("l", "vim_right", show=False),
+        Binding("g", "vim_first", show=False),
+        Binding("shift+g", "vim_last", show=False),
+        Binding("ctrl+d", "vim_page_down", show=False),
+        Binding("ctrl+u", "vim_page_up", show=False),
+        Binding("escape", "vim_normal", show=False),
     ]
 
     def __init__(self, root: Path) -> None:
@@ -50,6 +62,8 @@ class JobSearchApp(App[None]):
         self.root = root.resolve()
         self.dashboard = DashboardData((), (), {})
         self.selected_workflow = WORKFLOWS[0]
+        self.workflow_process: asyncio.subprocess.Process | None = None
+        self.workflow_session_id: str | None = None
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -67,13 +81,15 @@ class JobSearchApp(App[None]):
                         yield DataTable(id="applications", cursor_type="row", zebra_stripes=True)
                     with TabPane("Saved jobs", id="jobs-tab"):
                         yield DataTable(id="jobs", cursor_type="row", zebra_stripes=True)
+                    with TabPane("Workflow output", id="output-tab"):
+                        yield RichLog(id="workflow-output", wrap=True, highlight=True, markup=False)
                 with Vertical(id="launcher"):
                     yield Static("Search jobs", id="workflow-title")
                     yield Static(self.selected_workflow.description, id="workflow-description")
                     yield Input(placeholder="No arguments required", id="workflow-arguments")
                     with Horizontal(id="launcher-actions"):
-                        yield Button("Run in Codex", id="run", variant="primary")
-                        yield Static("Ctrl+R run  / arguments  R refresh", id="launcher-help")
+                        yield Button("Run workflow", id="run", variant="primary")
+                        yield Static("j/k move  h/l focus  g/G ends  ^d/^u page  Esc sidebar", id="launcher-help")
                 yield Static("Ready", id="status-line")
         yield Footer()
 
@@ -97,28 +113,148 @@ class JobSearchApp(App[None]):
     def action_focus_arguments(self) -> None:
         self.query_one("#workflow-arguments", Input).focus()
 
+    def action_vim_down(self) -> None:
+        focused = self.focused
+        if isinstance(focused, (ListView, DataTable)):
+            focused.action_cursor_down()
+        elif not isinstance(focused, Input):
+            self.action_focus_next()
+
+    def action_vim_up(self) -> None:
+        focused = self.focused
+        if isinstance(focused, (ListView, DataTable)):
+            focused.action_cursor_up()
+        elif not isinstance(focused, Input):
+            self.action_focus_previous()
+
+    def action_vim_left(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_focus_previous()
+
+    def action_vim_right(self) -> None:
+        if not isinstance(self.focused, Input):
+            self.action_focus_next()
+
+    def action_vim_first(self) -> None:
+        focused = self.focused
+        if isinstance(focused, ListView):
+            focused.index = 0
+        elif isinstance(focused, DataTable) and focused.row_count:
+            focused.move_cursor(row=0)
+
+    def action_vim_last(self) -> None:
+        focused = self.focused
+        if isinstance(focused, ListView):
+            focused.index = len(focused.children) - 1
+        elif isinstance(focused, DataTable) and focused.row_count:
+            focused.move_cursor(row=focused.row_count - 1)
+
+    def action_vim_page_down(self) -> None:
+        focused = self.focused
+        if isinstance(focused, (ListView, DataTable)):
+            focused.action_page_down()
+
+    def action_vim_page_up(self) -> None:
+        focused = self.focused
+        if isinstance(focused, (ListView, DataTable)):
+            focused.action_page_up()
+
+    def action_vim_normal(self) -> None:
+        self.query_one("#workflow-list", ListView).focus()
+
     def action_run(self) -> None:
+        if self.workflow_process is not None and self.workflow_process.returncode is None:
+            self.action_cancel_workflow()
+            return
         arguments = self.query_one("#workflow-arguments", Input).value
+        if self.workflow_session_id and not arguments.strip():
+            self.notify("Enter a reply before continuing.", severity="warning")
+            return
         status = self.query_one("#status-line", Static)
-        status.update(f"Launching {self.selected_workflow.prompt} …")
+        output = self.query_one("#workflow-output", RichLog)
+        if self.workflow_session_id:
+            output.write("\nYou: " + arguments.strip())
+            output.write("Continuing workflow…")
+        else:
+            output.clear()
+            output.write(f"Running {self.selected_workflow.prompt} inside the dashboard…")
+        self.query_one("#tables", TabbedContent).active = "output-tab"
+        self.query_one("#workflow-arguments", Input).disabled = True
+        self.query_one("#workflow-list", ListView).disabled = True
+        button = self.query_one("#run", Button)
+        button.label = "Cancel workflow"
+        button.variant = "warning"
+        status.update(f"Running {self.selected_workflow.prompt} …")
+        self.run_worker(
+            self._execute_workflow(
+                self.selected_workflow,
+                arguments,
+                self.workflow_session_id,
+            ),
+            name="codex-workflow",
+            group="codex-workflow",
+            exclusive=True,
+        )
+
+    async def _execute_workflow(
+        self,
+        workflow: Workflow,
+        arguments: str,
+        session_id: str | None,
+    ) -> None:
+        status = self.query_one("#status-line", Static)
         try:
-            with self.suspend():
-                return_code = run_workflow(self.root, self.selected_workflow.name, arguments)
+            return_code = await run_workflow(
+                self.root,
+                workflow.name,
+                arguments,
+                on_output=self._write_workflow_output,
+                on_process=self._set_workflow_process,
+                on_session=self._set_workflow_session,
+                session_id=session_id,
+            )
         except RunnerError as exc:
             self.notify(str(exc), title="Cannot launch workflow", severity="error")
             status.update(str(exc))
             return
-        except SuspendNotSupported as exc:
-            self.notify(str(exc), title="Workflow failed", severity="error")
-            status.update(f"Workflow failed: {exc}")
-            return
-        self.action_refresh()
+        finally:
+            self.workflow_process = None
+            self.query_one("#workflow-arguments", Input).disabled = False
+            self.query_one("#workflow-list", ListView).disabled = False
+            button = self.query_one("#run", Button)
+            button.label = "Continue workflow" if self.workflow_session_id else "Run workflow"
+            button.variant = "primary"
+        self.dashboard = load_dashboard(self.root)
+        self._render_stats()
+        self._render_applications()
+        self._render_jobs()
         if return_code == 0:
-            status.update(f"{self.selected_workflow.prompt} finished successfully")
+            status.update(f"{workflow.prompt} turn complete — reply to continue or choose another workflow")
+            arguments_widget = self.query_one("#workflow-arguments", Input)
+            arguments_widget.value = ""
+            arguments_widget.placeholder = "Reply to Codex, or choose another workflow"
+        elif return_code < 0:
+            status.update(f"{workflow.prompt} cancelled")
         else:
-            message = f"{self.selected_workflow.prompt} exited with status {return_code}"
+            message = f"{workflow.prompt} exited with status {return_code}"
             status.update(message)
             self.notify(message, severity="warning")
+
+    def action_cancel_workflow(self) -> None:
+        process = self.workflow_process
+        if process is None or process.returncode is not None:
+            return
+        process.terminate()
+        self.query_one("#status-line", Static).update("Cancelling workflow…")
+
+    def _set_workflow_process(self, process: asyncio.subprocess.Process) -> None:
+        self.workflow_process = process
+
+    def _set_workflow_session(self, session_id: str) -> None:
+        self.workflow_session_id = session_id
+
+    def _write_workflow_output(self, message: str) -> None:
+        self.query_one("#workflow-output", RichLog).write(message)
 
     @on(Button.Pressed, "#run")
     def run_button_pressed(self) -> None:
@@ -130,15 +266,24 @@ class JobSearchApp(App[None]):
 
     @on(ListView.Selected, "#workflow-list")
     def workflow_selected(self, event: ListView.Selected) -> None:
-        item = event.item
+        self._select_workflow(event.item)
+
+    @on(ListView.Highlighted, "#workflow-list")
+    def workflow_highlighted(self, event: ListView.Highlighted) -> None:
+        self._select_workflow(event.item)
+
+    def _select_workflow(self, item: ListItem | None) -> None:
         if not isinstance(item, WorkflowItem):
             return
+        if item.workflow != self.selected_workflow:
+            self.workflow_session_id = None
         self.selected_workflow = item.workflow
         self.query_one("#workflow-title", Static).update(item.workflow.label)
         self.query_one("#workflow-description", Static).update(item.workflow.description)
         arguments = self.query_one("#workflow-arguments", Input)
         arguments.value = ""
         arguments.placeholder = item.workflow.argument_hint or "No arguments required"
+        self.query_one("#run", Button).label = "Run workflow"
 
     def _render_stats(self) -> None:
         counts = "  ".join(f"{key}: {value}" for key, value in self.dashboard.status_counts.items())

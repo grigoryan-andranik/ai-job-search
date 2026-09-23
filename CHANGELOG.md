@@ -18,10 +18,10 @@ per-file diff commands.
 - **Interactive terminal dashboard for Codex workflows** (`job_search_tui/`,
   `pyproject.toml`) - adds a Textual interface showing application status and
   ranked-job data from the repository, with launchers for every canonical
-  workflow. Each launcher suspends the dashboard and opens an interactive Codex
-  session, preserving normal questions, approvals, and reset confirmations. The
-  dashboard refreshes when the session exits. Unit and headless UI tests cover
-  state loading, command construction, navigation, and packaging.
+  workflow. Workflows stream from headless Codex into an in-dashboard output tab,
+  with follow-up replies resuming the same session, cancellation, automatic data
+  refresh, and Vim navigation. Unit and headless UI tests cover state loading,
+  command construction, event rendering, navigation, and packaging.
 
 - **Real Excel workbook integration tests for the salary converter**
   (`tests/test_convert_salary_excel_integration.py`, `.github/workflows/ci.yml`) -

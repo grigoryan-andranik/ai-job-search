@@ -29,7 +29,8 @@ Repository data refreshes after every turn.
 
 Keyboard shortcuts: `j`/`k` move, `h`/`l` change focus, `g`/`G` jump to the
 first/last row, `Ctrl+D`/`Ctrl+U` page, `Esc` returns to the workflow list, `/`
-focuses arguments, `Ctrl+R` runs or continues, `Ctrl+C` cancels, and `q` exits.
+focuses arguments, `1`/`2`/`3` switch data/output tabs, `Ctrl+R` runs or
+continues, `Ctrl+C` cancels, and `q` exits.
 
 Use `$setup` only when onboarding or updating your profile; this workspace already has a populated profile. For a targeted update, use `$setup --section skills`.
 

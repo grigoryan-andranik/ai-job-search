@@ -1,20 +1,24 @@
-$js-background: #08111f;
-$js-panel: #0f1b2d;
-$js-panel-raised: #16243a;
-$js-border: #28405f;
-$js-text: #dbeafe;
-$js-muted: #8da2bd;
-$js-cyan: #38bdf8;
-$js-green: #4ade80;
+$black: #000000;
+$surface: #1d2021;
+$surface-raised: #282828;
+$border: #3c3836;
+$text: #ebdbb2;
+$bright: #fbf1c7;
+$muted: #a89984;
+$yellow: #fabd2f;
+$green: #b8bb26;
+$orange: #fe8019;
+$red: #fb4934;
 
 Screen {
-    background: $js-background;
-    color: $js-text;
+    background: $black;
+    color: $text;
 }
 
-Header {
-    background: #0b1525;
-    color: $js-text;
+Screen > Header {
+    background: $black;
+    color: $text;
+    border-bottom: solid $border;
 }
 
 #body {
@@ -22,144 +26,204 @@ Header {
 }
 
 #sidebar {
-    width: 27;
-    min-width: 23;
-    background: #0b1525;
-    border-right: solid $js-border;
-    padding: 1 0;
+    width: 24;
+    min-width: 21;
+    background: $black;
+    border-right: solid $border;
+    padding: 1 0 0 0;
 }
 
 .section-title {
     height: 2;
     padding: 0 2;
-    color: $js-muted;
+    color: $yellow;
     text-style: bold;
+    content-align: left middle;
 }
 
 #workflow-list {
     height: 1fr;
-    background: transparent;
+    background: $black;
     border: none;
     padding: 0 1;
+    scrollbar-color: $yellow;
+    scrollbar-background: $surface;
 }
 
 #workflow-list > ListItem {
-    height: 3;
-    padding: 1 1;
-    color: #a9bdd4;
+    height: 2;
+    padding: 0 1;
+    color: $muted;
+    content-align: left middle;
 }
 
 #workflow-list > ListItem.--highlight {
-    background: #12314a;
-    color: #e0f2fe;
-    border-left: thick $js-cyan;
+    background: $surface-raised;
+    color: $bright;
+    border-left: thick $yellow;
     text-style: bold;
+}
+
+#workflow-list:focus > ListItem.--highlight {
+    background: $surface-raised;
+    color: $bright;
+    border-left: thick $yellow;
+    text-style: bold;
+}
+
+#workflow-list:disabled > ListItem.--highlight {
+    border-left: thick $orange;
+    color: $muted;
 }
 
 #workspace {
     width: 1fr;
-    padding: 1 2;
+    padding: 0 1;
+    background: $black;
 }
 
 #stats {
-    height: 4;
-    padding: 1 2;
-    background: $js-panel;
-    border: solid $js-border;
+    height: 3;
+    padding: 1 1 0 1;
+    background: $black;
+    color: $text;
+    border-bottom: solid $border;
 }
 
 #tables {
     height: 1fr;
-    margin-top: 1;
+    background: $black;
+}
+
+Tabs {
+    background: $black;
+    color: $muted;
+}
+
+Tab {
+    background: $black;
+    color: $muted;
+}
+
+Tab.-active {
+    background: $black;
+    color: $yellow;
+    text-style: bold;
+}
+
+TabbedContent Tabs > Underline > .underline--bar,
+TabbedContent Tabs:focus > Underline > .underline--bar {
+    color: $yellow;
+    background: $surface;
 }
 
 TabbedContent > ContentSwitcher {
-    background: $js-panel;
-    border: solid $js-border;
+    background: $black;
+    border-top: solid $border;
 }
 
 DataTable {
     height: 1fr;
-    background: $js-panel;
+    background: $black;
+    color: $text;
+    scrollbar-color: $yellow;
+    scrollbar-background: $surface;
+}
+
+DataTable > .datatable--header {
+    background: $surface;
+    color: $yellow;
+    text-style: bold;
+}
+
+DataTable > .datatable--cursor {
+    background: $surface-raised;
+    color: $bright;
+    text-style: bold;
 }
 
 #workflow-output {
     height: 1fr;
     padding: 1 2;
-    background: $js-panel;
-    color: $js-text;
-    scrollbar-color: $js-cyan;
-}
-
-DataTable > .datatable--header {
-    background: $js-panel-raised;
-    color: #bfdbfe;
-    text-style: bold;
-}
-
-DataTable > .datatable--cursor {
-    background: #164e63;
-    color: white;
+    background: $black;
+    color: $text;
+    scrollbar-color: $yellow;
+    scrollbar-background: $surface;
 }
 
 #launcher {
-    height: 10;
-    margin-top: 1;
-    padding: 1 2;
-    background: $js-panel;
-    border: solid $js-border;
+    height: 9;
+    padding: 1 2 0 2;
+    background: $surface;
+    border-top: solid $border;
 }
 
 #workflow-title {
     height: 1;
-    color: $js-cyan;
+    color: $yellow;
     text-style: bold;
 }
 
 #workflow-description {
-    height: 2;
-    color: $js-muted;
+    height: 1;
+    color: $muted;
 }
 
 #workflow-arguments {
-    margin-top: 1;
-    border: tall $js-border;
+    margin-top: 0;
+    background: $black;
+    color: $bright;
+    border: tall $border;
 }
 
 #workflow-arguments:focus {
-    border: tall $js-cyan;
+    border: tall $yellow;
+}
+
+#workflow-arguments:disabled {
+    color: $muted;
+    border: tall $border;
 }
 
 #launcher-actions {
     height: 3;
-    margin-top: 1;
+    margin-top: 0;
     align-vertical: middle;
 }
 
 #run {
     min-width: 18;
-    background: #0369a1;
-    color: white;
+    background: $yellow;
+    color: $black;
     text-style: bold;
 }
 
-#run:hover {
-    background: #0284c7;
+#run:hover,
+#run:focus {
+    background: $orange;
+    color: $black;
+}
+
+#run.-warning {
+    background: $red;
+    color: $black;
 }
 
 #launcher-help {
     width: 1fr;
     padding: 1 0 0 2;
-    color: $js-muted;
+    color: $muted;
     text-align: right;
 }
 
 #status-line {
     height: 2;
     padding: 0 1;
-    color: $js-green;
+    color: $green;
+    background: $black;
 }
 
 Footer {
-    background: #0b1525;
+    background: $black;
+    color: $muted;
 }

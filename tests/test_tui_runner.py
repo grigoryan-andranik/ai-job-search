@@ -8,6 +8,7 @@ from job_search_tui.runner import (
     build_codex_command,
     build_prompt,
     build_resume_command,
+    discover_unavailable_remote_mcps,
     find_repo_root,
     format_codex_event,
     run_workflow,
@@ -32,8 +33,6 @@ class RunnerTests(unittest.TestCase):
                 "exec",
                 "--json",
                 "--approve-for-me",
-                "--sandbox",
-                "workspace-write",
                 "-C",
                 "/tmp/repo",
                 "$scrape",
@@ -74,7 +73,13 @@ class RunnerTests(unittest.TestCase):
 class AsyncRunnerTests(unittest.IsolatedAsyncioTestCase):
     @patch("job_search_tui.runner.asyncio.create_subprocess_exec", new_callable=AsyncMock)
     @patch("job_search_tui.runner.shutil.which", return_value="/usr/bin/codex")
-    async def test_run_workflow_streams_output_and_returns_status(self, _which, create_process):
+    @patch("job_search_tui.runner.discover_unavailable_remote_mcps", return_value=())
+    async def test_run_workflow_streams_output_and_returns_status(
+        self,
+        _discover,
+        _which,
+        create_process,
+    ):
         class Output:
             def __init__(self):
                 self.lines = iter(
@@ -110,8 +115,6 @@ class AsyncRunnerTests(unittest.IsolatedAsyncioTestCase):
             "exec",
             "--json",
             "--approve-for-me",
-            "--sandbox",
-            "workspace-write",
             "-C",
             "/tmp/repo",
             "$rank",
@@ -119,6 +122,29 @@ class AsyncRunnerTests(unittest.IsolatedAsyncioTestCase):
             stdout=-1,
             stderr=-2,
         )
+
+    def test_automatic_review_does_not_duplicate_sandbox_configuration(self):
+        command = build_codex_command(Path("/tmp/repo"), "$rank")
+        self.assertIn("--approve-for-me", command)
+        self.assertNotIn("--sandbox", command)
+
+    def test_unavailable_remote_mcp_is_disabled_for_workflow_only(self):
+        command = build_codex_command(Path("/tmp/repo"), "$rank", ("Neon",))
+        self.assertEqual(
+            command[2:4],
+            ["-c", "mcp_servers.Neon.enabled=false"],
+        )
+
+    @patch("job_search_tui.runner.subprocess.run")
+    def test_discovers_remote_mcp_without_auth_but_keeps_local_servers(self, run):
+        run.return_value.returncode = 0
+        run.return_value.stdout = (
+            '[{"name":"Neon","enabled":true,"auth_status":"unknown",'
+            '"transport":{"type":"streamable_http","bearer_token_env_var":null}},'
+            '{"name":"kb","enabled":true,"auth_status":"unsupported",'
+            '"transport":{"type":"stdio"}}]'
+        )
+        self.assertEqual(discover_unavailable_remote_mcps(), ("Neon",))
 
 
 if __name__ == "__main__":

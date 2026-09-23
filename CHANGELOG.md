@@ -92,6 +92,13 @@ per-file diff commands.
 
 ### Fixed
 
+- **Embedded Codex runner compatibility and TUI contrast** - removes the invalid
+  combination of `--approve-for-me` with an explicit `--sandbox` option. The
+  runner also isolates enabled remote MCP servers that have no usable
+  authentication, preventing an unrelated integration from flooding or stopping
+  a job workflow. The terminal dashboard now uses a black Gruvbox palette,
+  denser workflow rows, warmer focus states, and direct `1`/`2`/`3` tab navigation.
+
 - **`/rank` tracker matching preserves Unicode company and role names**
   (`tools/rank_state.py`, `tests/test_rank_state.py`) - ASCII-only normalization
   collapsed distinct non-Latin roles to the same empty value and dropped

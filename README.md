@@ -63,7 +63,7 @@ The framework encodes career guidance best practices, including structured evalu
 
 ## Prerequisites
 
-- [Codex](https://developers.openai.com/codex/cli) or [Claude Code](https://claude.com/claude-code). Codex supports the full workflow through repository skills; start at [CODEX.md](CODEX.md). Other agent runtimes can follow the shared specifications through [AGENTS.md](AGENTS.md).
+- [Codex](https://developers.openai.com/codex/cli) or [Claude Code](https://claude.com/claude-code). Codex supports the full workflow through repository skills; start at [CODEX.md](CODEX.md). Claude Code requires a paid subscription or API credits. Other agent runtimes can follow the shared specifications through [AGENTS.md](AGENTS.md).
 - Python 3.10+
 - [Bun](https://bun.sh) (for job search CLI tools)
 - LaTeX distribution with `lualatex` and `xelatex`: [TeX Live](https://tug.org/texlive/), [MacTeX](https://tug.org/mactex/), [TinyTeX](https://yihui.org/tinytex/), or [MiKTeX](https://miktex.org/). The CV compiles with `lualatex` (pdflatex often fails on modern MiKTeX installs with `fontawesome5` font-expansion errors); the cover letter compiles with `xelatex` because `cover.cls` requires `fontspec`. If using a minimal TeX install such as TinyTeX or BasicTeX, install the extra packages listed in [SETUP.md](SETUP.md#minimal-tex-install-tinytexbasictex).

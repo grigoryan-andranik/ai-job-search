@@ -30,6 +30,24 @@ python3 --version
 
 On Windows, `py --version` is often the most reliable check. If your system exposes Python as `python` instead of `python3`, use `python` in the commands below.
 
+### Terminal dashboard
+
+Install the optional Textual dashboard from the repository root:
+
+```bash
+python3 -m pip install -e .
+```
+
+Then run:
+
+```bash
+job-search
+```
+
+The dashboard requires Python 3.10+ and an authenticated `codex` executable on
+`PATH`. It launches workflows in interactive Codex sessions, so approval and
+confirmation prompts behave exactly as they do when starting Codex directly.
+
 ### Bun (for job search tools)
 
 The job portal CLIs (four Danish portals plus the country-agnostic `linkedin-search` and `freehire-search` tools) are written in TypeScript and run with Bun.

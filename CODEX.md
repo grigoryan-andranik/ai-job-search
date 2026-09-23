@@ -21,14 +21,15 @@ python3 -m pip install -e .
 job-search
 ```
 
-The dashboard reads `job_search_tracker.csv` and `job_scraper/seen_jobs.json`
-without changing them. Choosing a workflow suspends the dashboard and starts an
-interactive Codex session with the corresponding `$skill` prompt. Codex keeps
-ownership of tool approvals, clarification questions, document generation, and
-all workflow state. Exit that Codex session to return to the refreshed dashboard.
+The dashboard reads `job_search_tracker.csv` and `job_scraper/seen_jobs.json`,
+then runs the selected `$skill` through headless Codex while streaming progress
+into its **Workflow output** tab. It stays open throughout. When Codex asks a
+question, type the reply in the arguments field and continue the same session.
+Repository data refreshes after every turn.
 
-Keyboard shortcuts: `r` refreshes repository data, `/` focuses workflow
-arguments, `Ctrl+R` runs the selected workflow, and `q` exits.
+Keyboard shortcuts: `j`/`k` move, `h`/`l` change focus, `g`/`G` jump to the
+first/last row, `Ctrl+D`/`Ctrl+U` page, `Esc` returns to the workflow list, `/`
+focuses arguments, `Ctrl+R` runs or continues, `Ctrl+C` cancels, and `q` exits.
 
 Use `$setup` only when onboarding or updating your profile; this workspace already has a populated profile. For a targeted update, use `$setup --section skills`.
 

@@ -104,10 +104,15 @@ Launch it with:
 job-search
 ```
 
-The dashboard shows tracked applications and ranked jobs, then launches any
-workflow in an interactive Codex session. You can still use `$scrape`, `$rank`,
-and the other skills directly in Codex. The TUI is a front end for those same
-canonical workflows, not a second implementation.
+The dashboard shows tracked applications and ranked jobs, then runs any workflow
+inside its **Workflow output** tab. Codex streams progress and answers into the
+dashboard; reply in the arguments field to continue the same session. You can
+still use `$scrape`, `$rank`, and the other skills directly in Codex. The TUI is
+a front end for those same canonical workflows, not a second implementation.
+
+Navigation is Vim-friendly: `j`/`k` move, `h`/`l` change focus, `g`/`G` jump to
+the first or last row, `Ctrl+D`/`Ctrl+U` page, and `Esc` returns to the workflow
+list. Press `/` to focus the arguments/reply field and `Ctrl+R` to run.
 
 PowerShell:
 

@@ -45,8 +45,10 @@ job-search
 ```
 
 The dashboard requires Python 3.10+ and an authenticated `codex` executable on
-`PATH`. It launches workflows in interactive Codex sessions, so approval and
-confirmation prompts behave exactly as they do when starting Codex directly.
+`PATH`. It runs Codex headlessly and streams workflow progress into the dashboard
+instead of switching to Codex's default terminal UI. Replies continue the same
+Codex session; tool actions use Codex's automatic review in the workspace-write
+sandbox.
 
 ### Bun (for job search tools)
 

@@ -83,6 +83,14 @@ DataTable {
     background: $js-panel;
 }
 
+#workflow-output {
+    height: 1fr;
+    padding: 1 2;
+    background: $js-panel;
+    color: $js-text;
+    scrollbar-color: $js-cyan;
+}
+
 DataTable > .datatable--header {
     background: $js-panel-raised;
     color: #bfdbfe;

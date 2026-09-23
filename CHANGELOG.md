@@ -79,6 +79,13 @@ per-file diff commands.
 
 ### Changed
 
+- **The terminal dashboard now has one consistent keyboard model** - `j`/`k`
+  move within workflows, tables, and output; `Enter` runs the highlighted
+  workflow; `h`/`l` change workspace tabs; `1`/`2`/`3` jump directly; `Esc`
+  returns to workflows; and `?` opens an in-app keyboard guide. Numbered tabs,
+  contextual status hints, and clearer focus styling make the active navigation
+  target visible without leaving the black Gruvbox interface.
+
 - **`/add-template` keeps a registered template's intermediates in `build/`**
   (#473, `.claude/commands/add-template.md`, `.gitignore`,
   `tests/test_add_template_build_dir.py`) - the elicited compile command

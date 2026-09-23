@@ -1,0 +1,157 @@
+$js-background: #08111f;
+$js-panel: #0f1b2d;
+$js-panel-raised: #16243a;
+$js-border: #28405f;
+$js-text: #dbeafe;
+$js-muted: #8da2bd;
+$js-cyan: #38bdf8;
+$js-green: #4ade80;
+
+Screen {
+    background: $js-background;
+    color: $js-text;
+}
+
+Header {
+    background: #0b1525;
+    color: $js-text;
+}
+
+#body {
+    height: 1fr;
+}
+
+#sidebar {
+    width: 27;
+    min-width: 23;
+    background: #0b1525;
+    border-right: solid $js-border;
+    padding: 1 0;
+}
+
+.section-title {
+    height: 2;
+    padding: 0 2;
+    color: $js-muted;
+    text-style: bold;
+}
+
+#workflow-list {
+    height: 1fr;
+    background: transparent;
+    border: none;
+    padding: 0 1;
+}
+
+#workflow-list > ListItem {
+    height: 3;
+    padding: 1 1;
+    color: #a9bdd4;
+}
+
+#workflow-list > ListItem.--highlight {
+    background: #12314a;
+    color: #e0f2fe;
+    border-left: thick $js-cyan;
+    text-style: bold;
+}
+
+#workspace {
+    width: 1fr;
+    padding: 1 2;
+}
+
+#stats {
+    height: 4;
+    padding: 1 2;
+    background: $js-panel;
+    border: solid $js-border;
+}
+
+#tables {
+    height: 1fr;
+    margin-top: 1;
+}
+
+TabbedContent > ContentSwitcher {
+    background: $js-panel;
+    border: solid $js-border;
+}
+
+DataTable {
+    height: 1fr;
+    background: $js-panel;
+}
+
+DataTable > .datatable--header {
+    background: $js-panel-raised;
+    color: #bfdbfe;
+    text-style: bold;
+}
+
+DataTable > .datatable--cursor {
+    background: #164e63;
+    color: white;
+}
+
+#launcher {
+    height: 10;
+    margin-top: 1;
+    padding: 1 2;
+    background: $js-panel;
+    border: solid $js-border;
+}
+
+#workflow-title {
+    height: 1;
+    color: $js-cyan;
+    text-style: bold;
+}
+
+#workflow-description {
+    height: 2;
+    color: $js-muted;
+}
+
+#workflow-arguments {
+    margin-top: 1;
+    border: tall $js-border;
+}
+
+#workflow-arguments:focus {
+    border: tall $js-cyan;
+}
+
+#launcher-actions {
+    height: 3;
+    margin-top: 1;
+    align-vertical: middle;
+}
+
+#run {
+    min-width: 18;
+    background: #0369a1;
+    color: white;
+    text-style: bold;
+}
+
+#run:hover {
+    background: #0284c7;
+}
+
+#launcher-help {
+    width: 1fr;
+    padding: 1 0 0 2;
+    color: $js-muted;
+    text-align: right;
+}
+
+#status-line {
+    height: 2;
+    padding: 0 1;
+    color: $js-green;
+}
+
+Footer {
+    background: #0b1525;
+}

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ai-job-search-tui"
+version = "0.1.0"
+description = "Terminal dashboard and workflow launcher for AI Job Search"
+requires-python = ">=3.10"
+dependencies = [
+  "textual>=8.2.8,<9",
+]
+
+[project.scripts]
+job-search = "job_search_tui.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["job_search_tui"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/job_search_tui",
+  "/README.md",
+  "/LICENSE",
+]
+

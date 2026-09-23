@@ -63,8 +63,9 @@ The framework encodes career guidance best practices, including structured evalu
 
 ## Prerequisites
 
-- [Codex](https://developers.openai.com/codex/cli) or [Claude Code](https://claude.com/claude-code). Codex supports the full workflow through repository skills; start at [CODEX.md](CODEX.md). Other agent runtimes can follow the shared specifications through [AGENTS.md](AGENTS.md).
+- [Codex](https://developers.openai.com/codex/cli) or [Claude Code](https://claude.com/claude-code). Codex supports the full workflow through repository skills; start at [CODEX.md](CODEX.md). Claude Code requires a paid subscription or API credits. Other agent runtimes can follow the shared specifications through [AGENTS.md](AGENTS.md).
 - Python 3.10+
+- [Textual](https://textual.textualize.io/) for the optional terminal dashboard (`pip install -e .`)
 - [Bun](https://bun.sh) (for job search CLI tools)
 - LaTeX distribution with `lualatex` and `xelatex`: [TeX Live](https://tug.org/texlive/), [MacTeX](https://tug.org/mactex/), [TinyTeX](https://yihui.org/tinytex/), or [MiKTeX](https://miktex.org/). The CV compiles with `lualatex` (pdflatex often fails on modern MiKTeX installs with `fontawesome5` font-expansion errors); the cover letter compiles with `xelatex` because `cover.cls` requires `fontspec`. If using a minimal TeX install such as TinyTeX or BasicTeX, install the extra packages listed in [SETUP.md](SETUP.md#minimal-tex-install-tinytexbasictex).
 - Optional: `pip install pypdf` for `/apply`'s ATS parseability check (BSD; no Poppler required). Poppler `pdftotext` remains a fallback (macOS: `brew install poppler`, Debian/Ubuntu: `apt install poppler-utils`, Windows: `choco install poppler`). If both are missing, the check degrades to a visual keyword review.
@@ -90,6 +91,23 @@ cd ai-job-search
 > and every update workflow works identically. Fork only to contribute.
 
 ### 2. Install job search tools
+
+Install the terminal dashboard from the repository root:
+
+```bash
+python3 -m pip install -e .
+```
+
+Launch it with:
+
+```bash
+job-search
+```
+
+The dashboard shows tracked applications and ranked jobs, then launches any
+workflow in an interactive Codex session. You can still use `$scrape`, `$rank`,
+and the other skills directly in Codex. The TUI is a front end for those same
+canonical workflows, not a second implementation.
 
 PowerShell:
 
@@ -175,6 +193,8 @@ ai-job-search/
 ├── AGENTS.md                          # Codex entry point and shared source rules
 ├── CODEX.md                           # Codex usage and runtime mappings
 ├── CLAUDE.md                          # Main candidate profile + workflow rules
+├── job_search_tui/                    # Textual dashboard and Codex workflow launcher
+├── pyproject.toml                     # TUI package and job-search entry point
 ├── .claude/
 │   ├── commands/
 │   │   ├── apply.md                   # /apply workflow (drafter-reviewer)

@@ -27,12 +27,16 @@ class AppTests(unittest.IsolatedAsyncioTestCase):
                 self.assertIn("Job URL", app.query_one("#workflow-arguments", Input).placeholder)
 
                 await pilot.press("/")
-                await pilot.press("j", "k", "h", "l", "g")
-                self.assertEqual(app.query_one("#workflow-arguments", Input).value, "jkhlg")
+                await pilot.press("j", "k", "h", "l", "g", "1", "2", "3")
+                self.assertEqual(app.query_one("#workflow-arguments", Input).value, "jkhlg123")
 
                 await pilot.press("escape")
                 await pilot.press("shift+g")
                 self.assertEqual(app.query_one("#workflow-list", ListView).index, len(WORKFLOWS) - 1)
+                await pilot.press("2")
+                self.assertEqual(app.query_one("#tables", TabbedContent).active, "jobs-tab")
+                await pilot.press("3")
+                self.assertEqual(app.query_one("#tables", TabbedContent).active, "output-tab")
 
     async def test_workflow_runs_inside_dashboard_and_keeps_session_for_replies(self):
         async def fake_run(_root, _workflow, _arguments, **callbacks):

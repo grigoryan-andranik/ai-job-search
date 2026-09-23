@@ -112,7 +112,8 @@ a front end for those same canonical workflows, not a second implementation.
 
 Navigation is Vim-friendly: `j`/`k` move, `h`/`l` change focus, `g`/`G` jump to
 the first or last row, `Ctrl+D`/`Ctrl+U` page, and `Esc` returns to the workflow
-list. Press `/` to focus the arguments/reply field and `Ctrl+R` to run.
+list. Press `1`/`2`/`3` to open Applications, Saved jobs, or Workflow output;
+`/` focuses the arguments/reply field and `Ctrl+R` runs.
 
 PowerShell:
 

@@ -46,6 +46,9 @@ class JobSearchApp(App[None]):
         Binding("ctrl+r", "run", "Run workflow", show=True),
         Binding("ctrl+c", "cancel_workflow", "Cancel", show=False),
         Binding("/", "focus_arguments", "Arguments"),
+        Binding("1", "show_applications", "Applications", show=False),
+        Binding("2", "show_jobs", "Saved jobs", show=False),
+        Binding("3", "show_output", "Output", show=False),
         Binding("j", "vim_down", show=False),
         Binding("k", "vim_up", show=False),
         Binding("h", "vim_left", show=False),
@@ -69,7 +72,7 @@ class JobSearchApp(App[None]):
         yield Header()
         with Horizontal(id="body"):
             with Vertical(id="sidebar"):
-                yield Static("WORKFLOWS", classes="section-title")
+                yield Static("Workflows", classes="section-title")
                 yield ListView(
                     *(WorkflowItem(workflow) for workflow in WORKFLOWS),
                     id="workflow-list",
@@ -89,7 +92,7 @@ class JobSearchApp(App[None]):
                     yield Input(placeholder="No arguments required", id="workflow-arguments")
                     with Horizontal(id="launcher-actions"):
                         yield Button("Run workflow", id="run", variant="primary")
-                        yield Static("j/k move  h/l focus  g/G ends  ^d/^u page  Esc sidebar", id="launcher-help")
+                        yield Static("1 apps  2 jobs  3 output  ·  j/k move  / type  ^r run", id="launcher-help")
                 yield Static("Ready", id="status-line")
         yield Footer()
 
@@ -112,6 +115,17 @@ class JobSearchApp(App[None]):
 
     def action_focus_arguments(self) -> None:
         self.query_one("#workflow-arguments", Input).focus()
+
+    def action_show_applications(self) -> None:
+        self.query_one("#tables", TabbedContent).active = "applications-tab"
+        self.query_one("#applications", DataTable).focus()
+
+    def action_show_jobs(self) -> None:
+        self.query_one("#tables", TabbedContent).active = "jobs-tab"
+        self.query_one("#jobs", DataTable).focus()
+
+    def action_show_output(self) -> None:
+        self.query_one("#tables", TabbedContent).active = "output-tab"
 
     def action_vim_down(self) -> None:
         focused = self.focused
@@ -288,14 +302,14 @@ class JobSearchApp(App[None]):
     def _render_stats(self) -> None:
         counts = "  ".join(f"{key}: {value}" for key, value in self.dashboard.status_counts.items())
         summary = Text()
-        summary.append(f"{self.dashboard.total_applications}", style="bold #7dd3fc")
+        summary.append(f"{self.dashboard.total_applications}", style="bold #fabd2f")
         summary.append(" applications   ")
-        summary.append(f"{self.dashboard.active_applications}", style="bold #86efac")
+        summary.append(f"{self.dashboard.active_applications}", style="bold #b8bb26")
         summary.append(" active   ")
-        summary.append(f"{self.dashboard.ranked_jobs}", style="bold #fcd34d")
+        summary.append(f"{self.dashboard.ranked_jobs}", style="bold #fe8019")
         summary.append(" ranked jobs")
         if counts:
-            summary.append(f"\n{counts}", style="#94a3b8")
+            summary.append(f"\n{counts}", style="#a89984")
         self.query_one("#stats", Static).update(summary)
 
     def _render_applications(self) -> None:

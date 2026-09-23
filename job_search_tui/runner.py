@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import shutil
+import subprocess
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -36,28 +38,70 @@ def build_prompt(workflow_name: str, arguments: str = "") -> str:
     return f"${workflow_name}" + (f" {clean_arguments}" if clean_arguments else "")
 
 
-def build_codex_command(root: Path, prompt: str) -> list[str]:
+def build_codex_command(
+    root: Path,
+    prompt: str,
+    disabled_mcps: tuple[str, ...] = (),
+) -> list[str]:
+    mcp_overrides = [
+        option
+        for name in disabled_mcps
+        for option in ("-c", f"mcp_servers.{name}.enabled=false")
+    ]
     return [
         "codex",
         "--search",
+        *mcp_overrides,
         "exec",
         "--json",
         "--approve-for-me",
-        "--sandbox",
-        "workspace-write",
         "-C",
         str(root.resolve()),
         prompt,
     ]
 
 
-def build_resume_command(root: Path, session_id: str, reply: str) -> list[str]:
+def build_resume_command(
+    root: Path,
+    session_id: str,
+    reply: str,
+    disabled_mcps: tuple[str, ...] = (),
+) -> list[str]:
     return [
-        *build_codex_command(root, "")[:-1],
+        *build_codex_command(root, "", disabled_mcps)[:-1],
         "resume",
         session_id,
         reply,
     ]
+
+
+def discover_unavailable_remote_mcps() -> tuple[str, ...]:
+    """Find enabled remote MCP servers with no configured authentication."""
+    try:
+        completed = subprocess.run(
+            ["codex", "mcp", "list", "--json"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        servers = json.loads(completed.stdout) if completed.returncode == 0 else []
+    except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError):
+        return ()
+
+    unavailable: list[str] = []
+    for server in servers:
+        transport = server.get("transport", {})
+        name = server.get("name", "")
+        if (
+            server.get("enabled")
+            and transport.get("type") != "stdio"
+            and server.get("auth_status") in {"unknown", "not_authenticated"}
+            and not transport.get("bearer_token_env_var")
+            and re.fullmatch(r"[A-Za-z0-9_-]+", name)
+        ):
+            unavailable.append(name)
+    return tuple(unavailable)
 
 
 def format_codex_event(line: str) -> str | None:
@@ -114,13 +158,16 @@ async def run_workflow(
     """Run a workflow headlessly and stream readable events to ``on_output``."""
     if shutil.which("codex") is None:
         raise RunnerError("Codex CLI not found on PATH. Install it, sign in, then retry.")
+    disabled_mcps = discover_unavailable_remote_mcps()
     if session_id:
         reply = arguments.strip()
         if not reply:
             raise RunnerError("Enter a reply before continuing the workflow.")
-        command = build_resume_command(root, session_id, reply)
+        command = build_resume_command(root, session_id, reply, disabled_mcps)
     else:
-        command = build_codex_command(root, build_prompt(workflow_name, arguments))
+        command = build_codex_command(root, build_prompt(workflow_name, arguments), disabled_mcps)
+    if disabled_mcps:
+        on_output("Skipped unavailable MCP integrations: " + ", ".join(disabled_mcps))
     try:
         process = await asyncio.create_subprocess_exec(
             *command,
